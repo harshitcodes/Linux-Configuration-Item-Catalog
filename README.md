@@ -27,13 +27,14 @@ Source : [Udacity Development Environment](https://www.udacity.com/account#!/dev
 mv ~/Downloads/udacity_key.rsa ~/.ssh/
 `
 4.Set file rights (only owner can write and read.):
-`
+```
 chmod 600 ~/.ssh/udacity_key.rsa
-`
+```
+
 5. SSH login into the instance:
-`
+```
 ssh -i ~/.ssh/udacity_key.rsa root@IP-ADDRESS
-`
+```
 
 ### 2. User Management: Creation of a new user and give user sudo permissions
 
@@ -67,29 +68,34 @@ adduser grader
   * Switch to terminal connected to Linux VM in Step 1 through root user
 
 2. Setting up for connecting to the grader user.
-`
+
+```
 mkdir /home/grader/.ssh
 cp ~/.ssh/authorized_keys /home/grader/.ssh/authorized_keys
 chgrp grader /home/grader/.ssh/authorized_keys
 chown grader /home/grader/.ssh/authorized_keys
 rm ~/.ssh/authorized_keys
 rmdir .ssh
-`
+```
+
 Now to remove root login edit the `/etc/ssh/sshd_config` file by changing the line `PermitRootLogin without-password` to `PermitRootLogin no`.
-`
+
+```
 nano /etc/ssh/sshd_config
-`
+```
 
 Now we can login the server through grader user via ssh with command:
-`
+
+```
 ssh -i ~/.ssh/udacity_key.rsa grader@52.34.190.50
-`
+```
 
 ### 4. Updating the packages:
-`
+
+```
 sudo apt-get update
 sudo apt-get upgrade
-`
+```
 ### 5. Changing the port from 22 to 2200
 
 * Edit the file /etc/ssh/sshd_config line which states 'Port 22'
@@ -182,33 +188,35 @@ sudo apache2ctl restart
   `
   and the entries should look like:
 
-  `
+  ```
   local   all             postgres                                peer
 
-# TYPE  DATABASE        USER            ADDRESS                 METHOD
-"local" is for Unix domain socket connections only
-local   all             all                                     peer
-# IPv4 local connections:
-host    all             all             127.0.0.1/32            md5
-# IPv6 local connections:
-host    all             all             ::1/128                 md5
-  `
+  # TYPE  DATABASE        USER            ADDRESS                 METHOD
+  "local" is for Unix domain socket connections only
+  local   all             all                                     peer
+  # IPv4 local connections:
+  host    all             all             127.0.0.1/32            md5
+  # IPv6 local connections:
+  host    all             all             ::1/128                 md5
+  ```
 
   * Restart postgres
   `sudo service postgresql restart`
 
   * Start postgres
-  `sudo -u postgres -i`
+  `
+  sudo -u postgres -i
+  `
 
   Run `psql`
 
   * After we enter in psql we should execute the following commands:
 
-  `
+  ```
   => CREATE ROLE catalog PASSWORD 'strongpassword';
   => ALTER ROLE "catalog" WITH LOGIN;
   => CREATE DATABASE catalogdb OWNER catalog;
-  `
+  ```
 
 ### 10. Install git
 
@@ -218,7 +226,7 @@ sudo apt-get install git
 
 ### 11. Install all required python modules
 
-`
+```
 sudo apt-get install python-dev
 sudo apt-get install python-pip
 sudo pip install flask==0.9
@@ -227,7 +235,7 @@ sudo pip install sqlalchemy
 sudo pip install oauth2client
 sudo pip install psycopg2
 sudo pip install Flask-SeaSurf
-`
+```
 
 ### 12. Clone the Item-Catalog-API
 
@@ -289,17 +297,16 @@ sudo nano /etc/apache2/sites-enabled/itemcatalog.conf
 
   Add following python code in this file
 
-  `
-  #!/usr/bin/python
-import sys
-import logging
-logging.basicConfig(stream=sys.stderr)
-sys.path.insert(0,"/var/www/itemcatalog/")
-
-from ItemCatalog import app as application
-#from itemcatalog import app as application
-application.secret_key = 'super_secret_key'
-  `
+    ```python
+    #!/usr/bin/python
+    import sys
+    import logging
+    logging.basicConfig(stream=sys.stderr)
+    sys.path.insert(0,"/var/www/itemcatalog/")
+    from ItemCatalog import app as application
+    #from itemcatalog import app as application
+    application.secret_key = 'super_secret_key'
+    ```
 
 * Save and exit
 * Go to `/var/www/itemcatalog/ItemCatalog`
