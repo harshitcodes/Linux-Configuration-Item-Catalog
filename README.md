@@ -12,6 +12,8 @@ In this project I have deployed the web application that I developed earlier for
 `2200`
 
 ## Screenshots
+![API Screenshot](https://github.com/harshitcodes/Linux-Configuration-Item-Catalog/blob/master/screenshots/server_run.png)
+
 
 ## Configuration Steps
 Following are the steps I executed while configuring my web server(apache2) and my database server. I have briefly explained what each step does:
@@ -438,6 +440,10 @@ Launch Glances to monitor system
 `
 glances
 `
+
+### Monitoring Screenshot
+
+![monitoring glances log](https://github.com/harshitcodes/Linux-Configuration-Item-Catalog/blob/master/screenshots/monitor.png)
 
 
 ### Resources Used in configuring the application
