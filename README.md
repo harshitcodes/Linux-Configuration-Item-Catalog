@@ -125,67 +125,76 @@ ssh -i ~/.ssh/udacity_key.rsa grader@52.34.190.50 -p 2200
   `
   * Now start allowing incoming traffic only on needed ports i.e. SSH, HTTP, NTP
 
-  `
+  ```
   sudo ufw allow ssh
   sudo ufw allow www
   sudo ufw allow ntp
-  `
+  ```
+
   Adding port 2200 to the firewall as well to avoid being locked out server.
-  `
+  ```
   sudo ufw allow 2200/tcp
-  `
+  ```
+
   * Enable Firewall
-  `
+
+  ```
   sudo ufw enable
-  `
+  ```
 
 ### 7. Configure the local timezone to UTC
 
-`
+```
 sudo cat /etc/timezone  //check if it is UTC
 cd /etc
 sudo rm localtime       // if not
 sudo ln -s /usr/share/zoneinfo/UTC localtime
-`
+```
 
 ### 8. Install and configure Apache to serve a Python mod_wsgi application
 
   * Installing apache and dependencies:
-  `
+  ```
   sudo apt-get install apache2
   sudo apt-get install libapache2-mod-wsgi
-  `
+  ```
 
   * In the file `000-default.conf` append the line `WSGIScriptAlias / /var/www/html/myapp.wsgi` just
     before the closing tag `</VirtualHost>`
-`
+
+```
 sudo nano /etc/apache2/sites-enabled/000-default.conf
-`
+```
 
   * To resolve problem `AH00558: apache2: Could not reliably determine the server's fully qualified domain   name, using 127.0.1.1` add the line `ServerName localhost` in:
 
-`
+```
 sudo nano /etc/apache2/apache2.conf
-`
+```
+
 restart the server:
-`
+
+```
 sudo apache2ctl restart
-`
+```
 
 ### 9. Install and configure PostgreSQL
 
   * Installing postgresql and server dependencies
-  `
+
+  ```
   sudo apt-get install postgresql
   sudo apt-get install postgresql-server-dev-9.3
-  `
+  ```
 
   * Make sure PostgreSQL does not allow remote connections. PostgreSQL is set to disable remote connections by default and it can be verified as below.
 
   Open the file:
-  `
+
+  ```
   sudo nano /etc/postgresql/9.3/main/pg_hba.conf
-  `
+  ```
+
   and the entries should look like:
 
   ```
@@ -201,12 +210,16 @@ sudo apache2ctl restart
   ```
 
   * Restart postgres
-  `sudo service postgresql restart`
+
+  ```
+  sudo service postgresql restart
+  ```
 
   * Start postgres
-  `
+
+  ```
   sudo -u postgres -i
-  `
+  ```
 
   Run `psql`
 
@@ -220,9 +233,9 @@ sudo apache2ctl restart
 
 ### 10. Install git
 
-`
+```
 sudo apt-get install git
-`
+```
 
 ### 11. Install all required python modules
 
@@ -241,36 +254,40 @@ sudo pip install Flask-SeaSurf
 
   * Go to /var/www/ and create a folder itemcatalog
 
-  `
+  ```
   cd /var/www/
   mkdir itemcatalog
   cd itemcatalog
   sudo git clone https://github.com/harshitcodes/Item-Catalog-API.git ItemCatalog
-  `
+  ```
 
 This will copy the itemcatalog source to /var/www/itemcatalog/ItemCatalog
 
 ### 13. Make git web inaccessible
 
 Create a file named `.htaccess` in `/var/www/itemcatalog` append this in `.htaccess`
-`
+
+```
 RedirectMatch 404 /\.git
-`
+```
 
 ### 14. Enabling mod_wsgi and Apache Virtual Host Configuration
 
 * Run the command:
-`
+
+```
 sudo a2enmod wsgi
-`
+```
 
 * Create a file in /etc/apache2/sites-available/ with the name of itemcatalog.conf This will hold the configuration for Virtual Host pointing towards item catalog application.
-`
+
+```
 sudo nano /etc/apache2/sites-enabled/itemcatalog.conf
-`
+```
 
 * Insert the following lines of code in this file itemcatalog.conf
-`
+
+```
 <VirtualHost *:80>
       ServerName 54.68.44.235
       ServerAdmin admin@54.68.44.235
@@ -288,7 +305,8 @@ sudo nano /etc/apache2/sites-enabled/itemcatalog.conf
       LogLevel warn
       CustomLog ${APACHE_LOG_DIR}/access.log combined
 </VirtualHost>
-`
+```
+
 * Save and exit
 
 * Create .wsgi file
@@ -311,63 +329,72 @@ sudo nano /etc/apache2/sites-enabled/itemcatalog.conf
 * Save and exit
 * Go to `/var/www/itemcatalog/ItemCatalog`
 
-`
+```
 cd /var/www/itemcatalog/ItemCatalog
-`
+```
+
 * Rename `/var/www/itemcatalog/ItemCatalog/application.py` to `/var/www/itemcatalog/ItemCatalog/__init__.py`
 
-`
+```
 mv app.py __init__.py
-`
+```
 
 ### 14 Item Catalog source modifications for production
 
 1. Removing debugging settings from `__init__.py` file
 
   * Open `__init__.py`
-  `
+
+  ```
   sudo nano __init__.py
-  `
+  ```
 
   * Remove the application's debugging settings in the end and replace with app.run() Replace this section
 
-  `
+  ```python
   if __name__ == '__main__':
     app.secret_key = 'my_secret_key'
     app.debug = True
     app.run(host='0.0.0.0', port=8000)
-  `
+  ```
 
   with
 
-  `
+  ```python
   if __name__ == '__main__':
     app.run()
-  `
+  ```
 
 2. Update the Database engine creation line from `sqlite` to `postgresql`.
 
 replace line:
 
-`
+```python
 engine = create_engine('sqlite:///db/categorylist.db')
-`
+```
+
 with
 
-`
+```
 engine = create_engine('postgresql://catalog:strongpassword@localhost/catalogdb')
-`
+```
 
 * Permissions on uploads folder
 Give permissions to all for writing and reading files from static directory.
 
-`
+```
 sudo chmod -R 777 /var/www/itemcatalog/itemcatalog/static/
-`
+```
 
 * Use os.chdir() before reading client_secrets.json in __init__.py
 
-Add following line os.chdir(r'/var/www/itemcatalog/ItemCatalog') before CLIENT_ID = json.loads(open('client_secrets.json', 'r').read())['web']['client_id']. This will resolve the error of not being able to read client_secrets.json on server.
+Add following line
+
+```
+os.chdir(r'/var/www/itemcatalog/ItemCatalog')
+```
+
+before `CLIENT_ID = json.loads(open('client_secrets.json', 'r').read())['web']['client_id']`. This will resolve the error of not being able to read client_secrets.json on server.
 
 ### 15. Google SignIn Configuration
 
@@ -375,22 +402,28 @@ Add following line os.chdir(r'/var/www/itemcatalog/ItemCatalog') before CLIENT_I
 * Go to API Manager > credentials
 * Pick the entry for previously configured OAuth 2.0 client ID from table
 * Add `http://ec2-54-68-44-235.us-west-2.compute.amazonaws.com` and `54.68.44.235` to Authorized JavaScript Origins
-* Add `http://ec2-54-68-44-235.us-west-2.compute.amazonaws.com/oauth2callback` `54.68.44.235/oauth2callback` to Authorized redirect URIs
+* Add
+`http://ec2-54-68-44-235.us-west-2.compute.amazonaws.com/oauth2callback`
+
+`54.68.44.235/oauth2callback` to Authorized redirect URIs.
+
 * Save Changes
 
 ### Final Steps
 
 * Enable the site using a2ensite
 
-`
+```
 Enable the site
-`
+```
+
 * Restart `apache2`
 
-`
+```
 sudo service apache2 restart
-`
-### And the site is live and running on [54.68.44.235](54.68.44.235)
+```
+
+### And the site is live and running on [54.68.44.235](http://54.68.44.235)
 
 #### Monitoring packages:
 
