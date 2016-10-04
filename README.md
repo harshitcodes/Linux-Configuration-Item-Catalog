@@ -53,10 +53,8 @@ adduser grader
   `
   grader    ALL=(ALL) NOPASSWD:ALL
   `
-  3. To resolve problem `unable to resolve host ip-10-20-7-186` add the folowing line in `/etc/hosts` file:
-  `
-  127.0.1.1 ip-10-20-18-47
-  `
+  3. To resolve problem `unable to resolve host ip-10-20-18-47` add the folowing line in `/etc/hosts` file:
+  `127.0.1.1 ip-10-20-18-47`
 
 
 ### 3. Give grader access via ssh and remove access from root user
@@ -65,7 +63,11 @@ adduser grader
   Source: [Udacity Linux Web Server Course](https://www.udacity.com/course/viewer#!/c-ud299-nd/l-4331066009/m-4801089477)
   * Open another terminal on your local machine
   * Generate key pairs on local machine and run:
-  `ssh-keygen`
+
+  ```
+  ssh-keygen
+  ```
+
   * Provide the filename in the same `.ssh` folder and location to store the generated keys along with passphrase.
   * Switch to terminal connected to Linux VM in Step 1 through root user
 
@@ -89,7 +91,7 @@ nano /etc/ssh/sshd_config
 Now we can login the server through grader user via ssh with command:
 
 ```
-ssh -i ~/.ssh/udacity_key.rsa grader@52.34.190.50
+ssh -i ~/.ssh/udacity_key.rsa grader@54.68.44.235
 ```
 
 ### 4. Updating the packages:
@@ -103,28 +105,36 @@ sudo apt-get upgrade
 * Edit the file /etc/ssh/sshd_config line which states 'Port 22'
 * switch over to the new port by restarting SSH
 * verify SSH is listening on the new port by connecting to it with option -p 2200
-`
+
+```
 sudo nano /etc/ssh/sshd_config
 sudo restart ssh
-ssh -i ~/.ssh/udacity_key.rsa grader@52.34.190.50 -p 2200
-`
+ssh -i ~/.ssh/udacity_key.rsa grader@54.68.44.235 -p 2200
+```
 
 ### 6. Configure the Uncomplicated Firewall (UFW) to only allow incoming connections for SSH (port 2200), HTTP (port 80), and NTP (port 123)
 
   * First check the status of firewall if it is already active
-  `sudo ufw status`
+
+  ```
+  sudo ufw status
+  ```
+
   * Status for now should be `inactive`
 
   * Configuring the firewall
   * Blocking all incoming traffic by default
-  `
+
+  ```
   sudo ufw default deny incoming
-  `
+  ```
 
   * Set to allow outgoing traffic
-  `
+
+  ```
   sudo ufw default allow outgoing
-  `
+  ```
+
   * Now start allowing incoming traffic only on needed ports i.e. SSH, HTTP, NTP
 
   ```
